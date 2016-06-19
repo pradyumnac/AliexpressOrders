@@ -21,4 +21,7 @@ Now track your aliexpress orders easily. This python script generates a json rep
 * You need to edit the path to Chromexdriver in the file
 * Also, setup the Aliexpress Username and Password as environment variables. This is a makeshiift arrangement to pass on the credentials. A more permanent solution will be used once this sotware gets a destop app
 
+### License
+This code ia available as free to use under MIT License. Please check the LICENSE File for details
+
 
