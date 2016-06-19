@@ -1,8 +1,9 @@
 import gspread
-import pdb
+# import pdb
 import datetime
+import os
 from oauth2client.service_account import ServiceAccountCredentials
-URL = 'https://docs.google.com/spreadsheets/d/1ZP9ZAPxPwdu4gCCTn1kjUJB8M6JafdxmLUi4TuGLskc/edit?usp=sharing'
+URL = os.environ['AE_gsheet_url']
 SHEET_NAME = 'Sheet2'
 scope = ['https://spreadsheets.google.com/feeds']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('CAMSCAS-6ac566f0e517.json', scope)
@@ -100,5 +101,5 @@ def save_aliexpress_orders(dict_orders):
             add_record_from_dict(URL,SHEET_NAME,dict_save)
             
 if __name__ == '__main__':
-    clear_google_sheet(URL, SHEET_NAME)
-    # add_record_from_dict(URL,SHEET_NAME,create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())))
+    # clear_google_sheet(URL, SHEET_NAME)
+    add_record_from_dict(URL,SHEET_NAME,create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())))
