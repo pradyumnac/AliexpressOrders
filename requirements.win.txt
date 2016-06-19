@@ -1,4 +1,2 @@
-cssselect==0.9.2
 http://www.lfd.uci.edu/~gohlke/pythonlibs/6kbpejrn/lxml-3.4.4-cp35-none-win_amd64.whl
-pyquery==1.2.13
-selenium==2.53.5
+-r requirements.base.txt
