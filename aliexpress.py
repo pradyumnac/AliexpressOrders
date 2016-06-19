@@ -99,4 +99,4 @@ def get_open_orders(email,passwd, drivertype, driver_path=''):
         open("orders.json","w").write(json.dumps(aliexpress))
         
 if __name__ == "__main__":
-    print(get_open_orders("chatterjee.pra@gmail.com",os.environ['AE_passwd'],"Chrome","D:\Projects\projects\cams\chromedriver.exe"))
+    print(get_open_orders(os.environ['AE_username'],os.environ['AE_passwd'],"Chrome","D:\Projects\projects\cams\chromedriver.exe"))
