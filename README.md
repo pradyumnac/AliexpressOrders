@@ -1,5 +1,5 @@
 # AliexpressOrders
-Now track your aliexpress orders easily. This python script generates a json representation of all your orders
+Now track your aliexpress orders easily. This python script generates a json representation of all your orders. It also saved the inforation in a google sheet if you have set up one
 
 ### Whats working:
 1. Awaiting Shipments orders details
@@ -12,7 +12,7 @@ Now track your aliexpress orders easily. This python script generates a json rep
 2. Implement batch google sheet update
 
 ### To Do
-1. Integrate Tracking ID with an existing tracker to get package updates
+1. Integrate Tracking ID with an existing tracker to get package logistic updates
 2. Desktop App with UI
 
 ### Installation
