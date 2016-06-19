@@ -16,12 +16,17 @@ Now track your aliexpress orders easily. This python script generates a json rep
 2. Desktop App with UI
 
 ### Installation
-* As of the current state, The package is dependant on lxml, pyquery, selenium and Chromedriver/PhantomJS Pa*ckage. 
-* For lxml pacakge, the WHL file for windows is hardcoded in requiremensts file. So the requirements file will nott work on other platforms. I will fork out the reuiremments file for different platforms
-* You need to edit the path to Chromexdriver in the file
-* Also, setup the Aliexpress Username and Password as environment variables. This is a makeshiift arrangement to pass on the credentials. A more permanent solution will be used once this sotware gets a destop app
+* As of the current state, The package is dependant on lxml, pyquery, selenium and Chromedriver/PhantomJS Package. 
+* For lxml pacakge, the WHL file for windows is hardcoded in Windows file. Install using the following command:
+  * Windows:  `pip install -r requirements.win.txt
+  * Windows/Linux/Other platforms where python C mode LXMl can be compiled: `pip install -r requirements.base.txt
+* Edit the path to Chromexdriver in the file
+* Get Google Service Credentials. Download the credential json in same folder and point the path in the credentials call in file
+* You need to share a google sheet and copy the url to an environment variable *AE_gsheet_url*
+* Also, setup the Aliexpress Username and Password as environment variables. *AE_username* and *AE_passwd* 
+* Why Environment Variables: This is a makeshiift arrangement to pass on the credentials. A more permanent solution will be used once this sotware gets a destop app. Otherwise exposing these information in publicly shared code is a breachof privacy/security
 
 ### License
-This code ia available as free to use under MIT License. Please check the LICENSE File for details
+This code ia available as free to use/redistribute under MIT License. Please check the LICENSE File for sharing and attributuon requirements
 
 
