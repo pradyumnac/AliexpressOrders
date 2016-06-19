@@ -1,5 +1,7 @@
 import os
 import json
+# import pdb
+import sheets
 from pyquery import PyQuery as pq
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -33,6 +35,7 @@ def parse_orders_page(src):
     ])
     
 def parse_orders(driver='', order_json_file='', cache_mode='webread'):
+    orders = []
     if cache_mode == 'webread':
         if driver is '':
             raise Exception("No Selenium driver found in webread mode.")
@@ -49,8 +52,19 @@ def parse_orders(driver='', order_json_file='', cache_mode='webread'):
     else:
         raise Exception("Invalid cache_mode selected.")
     
-    
-    return parse_orders_page(source)
+    cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
+    while(1):        
+        orders.extend(parse_orders_page(source))
+        if cur_page < total_page:
+            link_next = driver.find_element_by_xpath('//*[@id="simple-pager"]/div/a[text()="Next "]')
+            # pdb.set_trace()
+            link_next.click()
+            cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
+        # pdb.set_trace()
+        print("Page:%d/%d"%(cur_page,total_page))
+        if cur_page == total_page:
+            break;
+    return orders
     
 def get_open_orders(email,passwd, drivertype, driver_path=''):
     if drivertype == "Chrome":
@@ -66,7 +80,7 @@ def get_open_orders(email,passwd, drivertype, driver_path=''):
         driver = webdriver.PhantomJS(desired_capabilities=dcap)
     else:
         raise Exception("Invalid Driver Type:" + drivertype)
-    driver.set_window_size(1120, 550)
+    driver.set_window_size(1366, 680)
     driver.get("https://login.aliexpress.com/express/mulSiteLogin.htm?spm=2114.11010108.1000002.7.9c5Rcg&return=http%3A%2F%2Fwww.aliexpress.com%2F")
     driver.switch_to_frame(driver.find_element_by_id("alibaba-login-box"))
     element = WebDriverWait(driver, 10).until(
@@ -98,5 +112,9 @@ def get_open_orders(email,passwd, drivertype, driver_path=''):
     if DEBUG:        
         open("orders.json","w").write(json.dumps(aliexpress))
         
+    return(aliexpress)
+        
 if __name__ == "__main__":
-    print(get_open_orders(os.environ['AE_username'],os.environ['AE_passwd'],"Chrome","D:\Projects\projects\cams\chromedriver.exe"))
+    orders = get_open_orders(os.environ['AE_username'],os.environ['AE_passwd'],"Chrome","D:\Projects\projects\cams\chromedriver.exe")
+    sheets.clear_google_sheet(sheets.URL, sheets.SHEET_NAME)
+    sheets.save_aliexpress_orders(orders)
