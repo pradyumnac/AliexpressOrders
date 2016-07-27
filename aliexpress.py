@@ -52,19 +52,23 @@ def parse_orders(driver='', order_json_file='', cache_mode='webread'):
     else:
         raise Exception("Invalid cache_mode selected.")
     
-    cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
-    while(1):        
-        orders.extend(parse_orders_page(source))
-        if cur_page < total_page:
-            link_next = driver.find_element_by_xpath('//*[@id="simple-pager"]/div/a[text()="Next "]')
+    try:
+        cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
+        while(1):        
+            orders.extend(parse_orders_page(source))
+            if cur_page < total_page:
+                link_next = driver.find_element_by_xpath('//*[@id="simple-pager"]/div/a[text()="Next "]')
+                # pdb.set_trace()
+                link_next.click()
+                cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
             # pdb.set_trace()
-            link_next.click()
-            cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
-        # pdb.set_trace()
-        print("Page:%d/%d"%(cur_page,total_page))
-        if cur_page == total_page:
-            break;
-    return orders
+            print("Page:%d/%d"%(cur_page,total_page))
+            if cur_page == total_page:
+                break;
+        return orders
+    except Exception as e:
+        print(e)
+        return([])
     
 def get_open_orders(email,passwd, drivertype, driver_path=''):
     if drivertype == "Chrome":
