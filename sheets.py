@@ -33,7 +33,7 @@ def clear_google_sheet(sheet_url, worksheet_name):
 # Add a record to the end of google sheet url supplied
 # no need to pass index
 def add_record_from_dict(sheet_url, worksheet_name, dict_rec):
-    
+    # one at a time
     gc = gspread.authorize(credentials)
     wkb = gc.open_by_url(sheet_url)
     wks = wkb.worksheet(worksheet_name)
@@ -45,6 +45,7 @@ def add_record_from_dict(sheet_url, worksheet_name, dict_rec):
     for i in values_list:
         new_row.append(dict_rec[i])
     wks.append_row(new_row)
+    
 
 # index is handled in insertion logic
 def create_order_dict(order_id, title, tracking_id, carrier, status, order_dt, recv_dt, price, updated_on):
@@ -60,11 +61,25 @@ def create_order_dict(order_id, title, tracking_id, carrier, status, order_dt, r
         "Updated On" :updated_on
     }
     
+def batch_update_gsheet(sheet_url, worksheet_name, list_rec, ts):
+    gc = gspread.authorize(credentials)
+    wkb = gc.open_by_url(sheet_url)
+    wks = wkb.worksheet(worksheet_name)
+    
+    rc = len(list_rec)
+    cell_list = wks.range('A2:C'+str(rc-1))
+    for cell in cell_list:
+        cell.value = 'O_o'
+    
+    wks.update_cells(cell_list) # Update in batch
+
+    
 def save_aliexpress_orders(dict_orders):
     list_awaiting_shipment = dict_orders['Not Shipped']
     list_awaiting_delivery = dict_orders['Shipped']
     
-    
+    # batch update
+    batch_save_list = []
     
     #tracking, carrier, status should be item wise, not order wise
     # for awaiting shipment, tracking id is sent as blank
@@ -83,7 +98,11 @@ def save_aliexpress_orders(dict_orders):
             str(datetime.datetime.now())
             )
             
-            add_record_from_dict(URL,SHEET_NAME,dict_save)
+            # add_record_from_dict(URL,SHEET_NAME,dict_save)
+            
+            # Append to batch list
+            batch_save_list.append(dict_save)
+            
     for i in list_awaiting_delivery:
         for j in i['product_list']:
             dict_save = create_order_dict(
@@ -98,8 +117,14 @@ def save_aliexpress_orders(dict_orders):
             str(datetime.datetime.now())
             )
             
-            add_record_from_dict(URL,SHEET_NAME,dict_save)
+            # add_record_from_dict(URL,SHEET_NAME,dict_save)
             
+            # Append to batch list
+            batch_save_list.append(dict_save)
+    
+    batch_update_gsheet(URL,SHEET_NAME, batch_save_list, str(datetime.datetime.now()))
+    
 if __name__ == '__main__':
     # clear_google_sheet(URL, SHEET_NAME)
-    add_record_from_dict(URL,SHEET_NAME,create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())))
+    # add_record_from_dict(URL,SHEET_NAME,create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())))
+    batch_update_gsheet(URL,SHEET_NAME,[create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now()), create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now()))],str(datetime.datetime.now())
