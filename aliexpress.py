@@ -1,5 +1,6 @@
 import os
 import json
+import time
 # import pdb
 import sheets
 from pyquery import PyQuery as pq
@@ -13,7 +14,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 UA_STRING = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36"
 
 DEBUG = True
-def parse_orders_page(src):
+def parse_orders_page(src, driver = None):
     node = pq(src)
     l_orders = []
     for e in node('.order-item-wraper'):
@@ -35,16 +36,36 @@ def parse_orders_page(src):
         }
         
         # GET Tracking id
-        import pdb
-        pdb.set_trace()
-        menu = e.find_element_by_css_selectors("#buyer-ordertable > tbody:nth-child(11) > tr.order-body > td.order-action > ui-button")
-        hover = ActionChains(browser).move_to_element(menu)
-        hover.perform()
-        
+        # import pdb
+        # pdb.set_trace()
+        if driver:
+            try:
+                # TODO - handle not found exception
+                t_button = driver.find_element_by_xpath('//*[@button_action="logisticsTracking" and @orderid="{}"]'.format(order['order_id']))
+                hover = ActionChains(driver).move_to_element(t_button).perform()
+                time.sleep(5)
+                
+                order['tracking_id'] = driver.find_element_by_css_selector('.ui-balloon b').text.strip().split(':')[1].strip()
+                try:
+                    # if present, It means, tracking has begun
+                    order['tracking_status'] = driver.find_element_by_css_selector('.ui-balloon .event-line-key').text
+                except:
+                    # Check for no event which means tracking has nto started or has not begun
+                    try:
+                        order['tracking_status'] = driver.find_element_by_css_selector('.ui-balloon .no-event').text.strip()
+                        # If above passed, copy the tracking link and past for manual tracking
+                        order['tracking_status'] = "Manual Tracking: " + driver.find_element_by_css_selector('.ui-balloon .no-event a').get_attribute('href').strip()
+                    except:
+                        order['tracking_status'] = '<Tracking Parse Error>'
+            except:
+                order['tracking_id'] = '<Error in Parsing Tracking ID>'
+                order['tracking_status'] = '<Tracking Parse Error due to Error in Parsing Tracking ID>'
+                print("Tracking id retrieval failed for order:"+order['order_id'])
+                pass
         
         l_orders.append(order)
         
-        
+    return l_orders
     
     
 def parse_orders(driver='', order_json_file='', cache_mode='webread'):
@@ -70,7 +91,7 @@ def parse_orders(driver='', order_json_file='', cache_mode='webread'):
         cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
         while(1):        
             source = driver.find_element_by_id("buyer-ordertable").get_attribute("innerHTML")
-            orders.extend(parse_orders_page(source))
+            orders.extend(parse_orders_page(source,driver=driver))
             if break_loop:
                 break
             elif cur_page < total_page:
