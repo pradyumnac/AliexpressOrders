@@ -15,8 +15,9 @@ UA_STRING = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (
 DEBUG = True
 def parse_orders_page(src):
     node = pq(src)
-    return([
-        {
+    l_orders = []
+    for e in node('.order-item-wraper'):
+        order = {
         "order_id":        pq(e)('.order-head .order-info .first-row .info-body')[0].text,
         "order_url":       pq(e)('.order-head .order-info .first-row .view-detail-link')[0].attrib['href'],
         "order_dt":        pq(e)('.order-head .order-info .second-row .info-body')[0].text,
@@ -31,8 +32,20 @@ def parse_orders_page(src):
             } for f in pq(e)('.order-body .product-sets')],
         "status": pq(e)('.order-body .order-status .f-left').text(),
         "status_days_left": pq(e)('.order-body .order-status .left-sendgoods-day').text().strip()
-        } for e in node('.order-item-wraper')
-    ])
+        }
+        
+        # GET Tracking id
+        import pdb
+        pdb.set_trace()
+        menu = e.find_element_by_css_selectors("#buyer-ordertable > tbody:nth-child(11) > tr.order-body > td.order-action > ui-button")
+        hover = ActionChains(browser).move_to_element(menu)
+        hover.perform()
+        
+        
+        l_orders.append(order)
+        
+        
+    
     
 def parse_orders(driver='', order_json_file='', cache_mode='webread'):
     orders = []

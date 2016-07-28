@@ -67,6 +67,7 @@ def batch_update_gsheet(sheet_url, worksheet_name, list_rec, ts):
     wks = wkb.worksheet(worksheet_name)
     
     rc = len(list_rec)
+    cc = len(list_rec[0].keys())
     # cc = len(list_rec[0])
     print("number of rows:"+str(wks.row_count))
     wks.resize(rc+10,10)
