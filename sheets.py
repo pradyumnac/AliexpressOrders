@@ -56,7 +56,7 @@ def create_order_dict(order_id, title, tracking_id, carrier, status, order_dt, r
         "Tracking Status"    :carrier,
         "Status"     :status,
         "Order Date" :order_dt,
-        "Recv Date"  :recv_dt,
+        "Days Left"  :recv_dt,
         "Price"      :price,
         "Updated On" :updated_on
     }
@@ -95,7 +95,7 @@ def batch_update_gsheet(sheet_url, worksheet_name, list_rec, ts):
         elif(j==6):
             cell.value = list_rec[i]['Order Date']
         elif(j==7):
-            cell.value = ''
+            cell.value = list_rec[i]['Days Left']
         elif(j==8):
             cell.value = list_rec[i]['Price']
         elif(j==9):
@@ -152,7 +152,7 @@ def save_aliexpress_orders(dict_orders):
                 i['tracking_status'],
                 i['status'],
                 i['order_dt'],
-                '',
+                ''.join(i['status_days_left'].strip('Your order will be closed in:').strip().split(' ')),
                 j['amount'],
                 str(datetime.datetime.now())
                 )
