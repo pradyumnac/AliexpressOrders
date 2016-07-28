@@ -52,11 +52,15 @@ def parse_orders(driver='', order_json_file='', cache_mode='webread'):
     else:
         raise Exception("Invalid cache_mode selected.")
     
+    break_loop = False
     try:
         cur_page,total_page = (int(i) for i in driver.find_element_by_xpath('//*[@id="simple-pager"]/div/label').text.split('/'))
         while(1):        
+            source = driver.find_element_by_id("buyer-ordertable").get_attribute("innerHTML")
             orders.extend(parse_orders_page(source))
-            if cur_page < total_page:
+            if break_loop:
+                break
+            elif cur_page < total_page:
                 link_next = driver.find_element_by_xpath('//*[@id="simple-pager"]/div/a[text()="Next "]')
                 # pdb.set_trace()
                 link_next.click()
@@ -64,7 +68,7 @@ def parse_orders(driver='', order_json_file='', cache_mode='webread'):
             # pdb.set_trace()
             print("Page:%d/%d"%(cur_page,total_page))
             if cur_page == total_page:
-                break;
+                break_loop = True # to break after parsing the next time
         return orders
     except Exception as e:
         print(e)
