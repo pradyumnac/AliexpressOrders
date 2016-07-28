@@ -67,9 +67,46 @@ def batch_update_gsheet(sheet_url, worksheet_name, list_rec, ts):
     wks = wkb.worksheet(worksheet_name)
     
     rc = len(list_rec)
-    cell_list = wks.range('A2:C'+str(rc-1))
+    # cc = len(list_rec[0])
+    print("number of rows:"+str(wks.row_count))
+    wks.resize(rc+10,10)
+    print("number of rows after resize:"+str(wks.row_count))
+    # wks.add_rows(rc+10-wks.row_count)
+    print('A2:J'+str(rc+1))
+    cell_list = wks.range('A2:J'+str(rc+1))
+    i = 0
+    j = 0
+            
     for cell in cell_list:
-        cell.value = 'O_o'
+        print(list_rec[i])
+        if(j==0):
+            cell.value = str(i+1)
+        elif(j==1):
+            cell.value = list_rec[i]['Order ID']
+        elif(j==2):
+            cell.value = list_rec[i]['Title'] 
+        elif(j==3):
+            cell.value = ''
+        elif(j==4):
+            cell.value = ''
+        elif(j==5):
+            cell.value = list_rec[i]['Status']
+        elif(j==6):
+            cell.value = list_rec[i]['Order Date']
+        elif(j==7):
+            cell.value = ''
+        elif(j==8):
+            cell.value = list_rec[i]['Price']
+        elif(j==9):
+            cell.value = str(datetime.datetime.now())
+            j=-1 # made0 in increment step
+            i+=1
+        # elif(j==10):
+            # j=0
+            # i += 1 
+            # continue
+        j += 1
+        # cell.value = 'O_o'
     
     wks.update_cells(cell_list) # Update in batch
 
@@ -127,4 +164,10 @@ def save_aliexpress_orders(dict_orders):
 if __name__ == '__main__':
     # clear_google_sheet(URL, SHEET_NAME)
     # add_record_from_dict(URL,SHEET_NAME,create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())))
-    batch_update_gsheet(URL,SHEET_NAME,[create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now()), create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now()))],str(datetime.datetime.now())
+    batch_update_gsheet(URL,
+        SHEET_NAME, [
+        create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())),
+        create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())),
+        create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now())),
+        create_order_dict('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', str(datetime.datetime.now()))],
+        str(datetime.datetime.now()))

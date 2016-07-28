@@ -113,6 +113,14 @@ def get_open_orders(email,passwd, drivertype, driver_path=''):
     intAwaitingDelivery = elemAwaitingDelivery.get_attribute("innerText").split("(")[1].strip(")")
     elemAwaitingDelivery.click()
     aliexpress['Shipped'] = parse_orders(driver, 'ae2.html','webread')
+    
+    
+    elemAwaitingShipment = driver.find_element_by_id("remiandTips_waitBuyerPayment")
+    intAwaitingShipment = elemAwaitingShipment.get_attribute("innerText").split("(")[1].strip(")")
+    elemAwaitingShipment.click()
+    aliexpress['Order Awaiting Payment'] = parse_orders(driver, 'ae3.html','webread')
+    
+    
     if DEBUG:        
         open("orders.json","w").write(json.dumps(aliexpress))
         
