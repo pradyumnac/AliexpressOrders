@@ -10,10 +10,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.support.ui import Select
 
 UA_STRING = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36"
 
 DEBUG = True
+DEBUG_READ = False
 def parse_orders_page(src, driver = None):
     node = pq(src)
     l_orders = []
@@ -158,6 +160,13 @@ def get_open_orders(email,passwd, drivertype, driver_path=''):
     elemAwaitingShipment.click()
     aliexpress['Order Awaiting Payment'] = parse_orders(driver, 'ae3.html','webread')
     
+    driver.find_element_by_id("switch-filter").click()
+    Select(driver.find_element_by_id("order-status")).select_by_value('FINISH')
+    driver.find_element_by_id("search-btn").click()
+    
+    # intCompleted = elemCompleted.get_attribute("innerText").split("(")[1].strip(")")
+    aliexpress['Order Completed'] = parse_orders(driver, 'ae4.html','webread')
+    
     
     if DEBUG:        
         open("orders.json","w").write(json.dumps(aliexpress))
@@ -165,6 +174,13 @@ def get_open_orders(email,passwd, drivertype, driver_path=''):
     return(aliexpress)
         
 if __name__ == "__main__":
-    orders = get_open_orders(os.environ['AE_username'],os.environ['AE_passwd'],"Chrome","D:\Projects\projects\cams\chromedriver.exe")
+    
+    
+    if DEBUG_READ:        
+        orders = json.loads(open("orders.json","r").read())
+    else:
+        orders = get_open_orders(os.environ['AE_username'],os.environ['AE_passwd'],"Chrome","D:\Projects\projects\cams\chromedriver.exe")
+    
+    print(orders.keys())
     sheets.clear_google_sheet(sheets.URL, sheets.SHEET_NAME)
     sheets.save_aliexpress_orders(orders)

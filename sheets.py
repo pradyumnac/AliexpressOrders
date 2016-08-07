@@ -113,8 +113,22 @@ def batch_update_gsheet(sheet_url, worksheet_name, list_rec, ts):
 
     
 def save_aliexpress_orders(dict_orders):
-    list_awaiting_shipment = dict_orders['Not Shipped']
-    list_awaiting_delivery = dict_orders['Shipped']
+    if 'Not Shipped' in dict_orders:
+        list_awaiting_shipment = dict_orders['Not Shipped']
+    else:
+        list_awaiting_shipment = []
+    if 'Shipped' in dict_orders:
+        list_awaiting_delivery = dict_orders['Shipped']
+    else:
+        list_awaiting_delivery = []
+    if 'Order Awaiting Payment' in dict_orders:
+        list_awaiting_payment = dict_orders['Order Awaiting Payment']
+    else:
+        list_awaiting_payment = []
+    if 'Order Completed' in dict_orders:
+        list_completed = dict_orders['Order Completed']
+    else:
+        list_completed = []
     
     # batch update
     batch_save_list = []
@@ -166,6 +180,59 @@ def save_aliexpress_orders(dict_orders):
                 import sys
                 print(sys.exc_info())
                 print('Error in saving order'+i['order_id'])
+    
+    for i in list_awaiting_payment:
+        for j in i['product_list']:
+            try:
+                
+                dict_save = create_order_dict(
+                i['order_id'],
+                j['title'],
+                i['tracking_id'],
+                i['tracking_status'],
+                i['status'],
+                i['order_dt'],
+                ''.join(i['status_days_left'].strip('Your order will be closed in:').strip().split(' ')),
+                j['amount'],
+                str(datetime.datetime.now())
+                )
+                
+                # add_record_from_dict(URL,SHEET_NAME,dict_save)
+                
+                # Append to batch list
+                batch_save_list.append(dict_save)
+            except:
+                print(j.keys())
+                import sys
+                print(sys.exc_info())
+                print('Error in saving order'+i['order_id'])
+    
+    for i in list_completed:
+        for j in i['product_list']:
+            try:
+                
+                dict_save = create_order_dict(
+                i['order_id'],
+                j['title'],
+                i['tracking_id'],
+                i['tracking_status'],
+                i['status'],
+                i['order_dt'],
+                '0 days',
+                j['amount'],
+                str(datetime.datetime.now())
+                )
+                
+                # add_record_from_dict(URL,SHEET_NAME,dict_save)
+                
+                # Append to batch list
+                batch_save_list.append(dict_save)
+            except:
+                print(j.keys())
+                import sys
+                print(sys.exc_info())
+                print('Error in saving order'+i['order_id'])
+    
     
     batch_update_gsheet(URL,SHEET_NAME, batch_save_list, str(datetime.datetime.now()))
     
